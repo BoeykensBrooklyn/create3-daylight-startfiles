@@ -18,7 +18,7 @@
   --global-color-front: #0f3557;
   --global-backgroundColor: #cce7ff;
   /* opacity */
-
+  --global-muted-opcacity: 0.6;
   /* transitions */
 }
 
@@ -253,6 +253,9 @@ input::placeholder {
 #COMPONENTS
 \*------------------------------------*/
 
+.c-wrapper {
+}
+
 /*
     Component: Logo
     ---
@@ -266,6 +269,7 @@ input::placeholder {
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
+  opacity: var(--global-muted-opcacity);
 }
 
 /*
@@ -293,12 +297,26 @@ input::placeholder {
 .c-app {
   max-width: 405px;
   margin: 32px auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0;
+}
+
+.c-app__location {
+  font-size: 16px;
+  line-height: 16px;
+  opacity: var(--global-muted-opcacity);
 }
 
 .c-app__summary {
   font-size: 28px;
   line-height: 40px;
   margin-top: 16px;
+}
+
+.c-app__summary--muted {
+  opacity: var(--global-muted-opcacity);
 }
 
 /*
@@ -308,6 +326,7 @@ input::placeholder {
 */
 
 .c-horizon {
+  margin-top: auto;
   margin-bottom: 32px;
 }
 
