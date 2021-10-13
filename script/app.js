@@ -38,21 +38,29 @@ let showResult = (queryResponse) => {
   let location = document.querySelector('.js-location');
   location.innerHTML = queryResponse.name + ', ' + queryResponse.sys.country;
   let sunRiseTime = document.querySelector('.js-sunrise');
-  let sunRiseTimeDate = new Date(queryResponse.sys.sunrise);
-  console.log(queryResponse.sys.sunrise);
-  sunRiseTime.innerHTML = sunRiseTimeDate.getHours() + ':' + sunRiseTimeDate.getMinutes();
+  let sunRiseTimeDate = new Date(queryResponse.sys.sunrise * 1000);
+  sunRiseTime.innerHTML = sunRiseTimeDate.toLocaleString('nl-BE', {
+    hour: 'numeric',
+    minute: 'numeric',
+  });
   let sunsetTime = document.querySelector('.js-sunset');
-  let sunsetTimeDate = new Date(queryResponse.sys.sunset);
-  sunsetTime.innerHTML = sunsetTimeDate.getHours() + ':' + sunsetTimeDate.getMinutes();
+  let sunsetTimeDate = new Date(queryResponse.sys.sunset * 1000);
+  sunsetTime.innerHTML = sunsetTimeDate.toLocaleString('nl-BE', {
+    hour: 'numeric',
+    minute: 'numeric',
+  });
 
   // Hier gaan we een functie oproepen die de zon een bepaalde positie kan geven en dit kan updaten.
   // Geef deze functie de periode tussen sunrise en sunset mee en het tijdstip van sunrise.
+  let totalMinutes = (sunsetTimeDate.getTime() - sunRiseTimeDate.getTime()) / 1000 / 60;
+  console.log(totalMinutes);
+  placeSunAndStartMoving(totalMinutes, sunRiseTimeDate);
 };
 
 // 2 Aan de hand van een longitude en latitude gaan we de yahoo wheater API ophalen.
 let getAPI = (lat, lon) => {
   // Eerst bouwen we onze url op
-  let url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=608fd61813fc09c7e5aff2f7d055db85&units=metric&lang=nl`;
+  let url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=608fd61813fc09c7e5aff2f7d055db85`;
   // Met de fetch API proberen we de data op te halen.
   // Als dat gelukt is, gaan we naar onze showResult functie.
   fetch(url)
