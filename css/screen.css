@@ -260,6 +260,11 @@ input::placeholder {
 */
 
 .c-logo {
+  font-size: 16px;
+  line-height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 /*
@@ -269,9 +274,13 @@ input::placeholder {
 */
 
 .c-sun {
+  max-width: 22px;
+  max-height: 22px;
+  fill: var(--global-color-front);
 }
 
 .c-logo .c-sun {
+  margin-right: 8px;
 }
 
 /*
@@ -282,7 +291,7 @@ input::placeholder {
 
 .c-app {
   max-width: 405px;
-  margin: 0 auto;
+  margin: 32px auto;
 }
 
 .c-app__summary {
