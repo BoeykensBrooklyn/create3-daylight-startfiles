@@ -280,6 +280,16 @@ input::placeholder {
     Main app wrapper
 */
 
+.c-app {
+  max-width: 405px;
+  margin: 0 auto;
+}
+
+.c-app__summary {
+  font-size: 28px;
+  line-height: 40px;
+}
+
 /*
     Component: Horizon
     ---
