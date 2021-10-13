@@ -14,13 +14,31 @@ function _parseMillisecondsIntoReadableTime(timestamp) {
 }
 
 // 5 TODO: maak updateSun functie
+const updateSun = function(procent, DOMElement, timeObject){
+  DOMElement.setAttribute("data-time", timeObject.toLocaleString('nl-BE', {
+    hour: 'numeric',
+    minute: 'numeric',
+  }) );
+
+  let bottomPercentage = 100 - procent;
+
+  DOMElement.style.bottom = `${bottomPercentage}%`;
+  DOMElement.style.left = `${procent}%`;
+
+}
 
 // 4 Zet de zon op de juiste plaats en zorg ervoor dat dit iedere minuut gebeurt.
 let placeSunAndStartMoving = (totalMinutes, sunrise) => {
   // In de functie moeten we eerst wat zaken ophalen en berekenen.
   // Haal het DOM element van onze zon op en van onze aantal minuten resterend deze dag.
+  let sunDOMElement = document.querySelector('.js-sun');
+  let aantalResterendeMinutenDOMElement = document.querySelector('.js-time-left')
   // Bepaal het aantal minuten dat de zon al op is.
+  let timeAtTheMoment = new Date();
+  let zonOpMinuten = totalMinutes - timeAtTheMoment.getMinutes();
   // Nu zetten we de zon op de initiële goede positie ( met de functie updateSun ). Bereken hiervoor hoeveel procent er van de totale zon-tijd al voorbij is.
+  let percentage = Math.round(zonOpMinuten/totalMinutes *100);
+  updateSun(percentage, sunDOMElement, timeAtTheMoment)
   // We voegen ook de 'is-loaded' class toe aan de body-tag.
   // Vergeet niet om het resterende aantal minuten in te vullen.
   // Nu maken we een functie die de zon elke minuut zal updaten
@@ -52,6 +70,7 @@ let showResult = (queryResponse) => {
 
   // Hier gaan we een functie oproepen die de zon een bepaalde positie kan geven en dit kan updaten.
   // Geef deze functie de periode tussen sunrise en sunset mee en het tijdstip van sunrise.
+  console.log(sunRiseTimeDate)
   let totalMinutes = (sunsetTimeDate.getTime() - sunRiseTimeDate.getTime()) / 1000 / 60;
   console.log(totalMinutes);
   placeSunAndStartMoving(totalMinutes, sunRiseTimeDate);
