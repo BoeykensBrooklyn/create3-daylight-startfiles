@@ -38,9 +38,12 @@ let showResult = (queryResponse) => {
   let location = document.querySelector('.js-location');
   location.innerHTML = queryResponse.name + ', ' + queryResponse.sys.country;
   let sunRiseTime = document.querySelector('.js-sunrise');
-  sunRiseTime.innerHTML = moment(new Date(queryResponse.sys.sunrise)).format('hh:mm');
+  let sunRiseTimeDate = new Date(queryResponse.sys.sunrise);
+  console.log(queryResponse.sys.sunrise);
+  sunRiseTime.innerHTML = sunRiseTimeDate.getHours() + ':' + sunRiseTimeDate.getMinutes();
   let sunsetTime = document.querySelector('.js-sunset');
-  sunsetTime.innerHTML = moment(new Date(queryResponse.sys.sunset)).format('hh:mm');
+  let sunsetTimeDate = new Date(queryResponse.sys.sunset);
+  sunsetTime.innerHTML = sunsetTimeDate.getHours() + ':' + sunsetTimeDate.getMinutes();
 
   // Hier gaan we een functie oproepen die de zon een bepaalde positie kan geven en dit kan updaten.
   // Geef deze functie de periode tussen sunrise en sunset mee en het tijdstip van sunrise.
