@@ -35,8 +35,8 @@
 html {
   font-size: 16px;
   line-height: 1.5;
-  color: var(--global-color-front);
-  background-color: var(--global-backgroundColor);
+  color: var(--color-front, var(--global-color-front));
+  background-color: var(--color-back, var(--global-backgroundColor));
   font-family: 'Work Sans', Helvetica, arial, sans-serif;
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
@@ -277,7 +277,7 @@ input::placeholder {
 .c-sun {
   max-width: 22px;
   max-height: 22px;
-  fill: var(--global-color-front);
+  fill: var(--color-front, var(--global-color-front));
 }
 
 .c-logo .c-sun {
@@ -298,7 +298,7 @@ input::placeholder {
 .c-app__summary {
   font-size: 28px;
   line-height: 40px;
-  margin: 16px 0;
+  margin-top: 16px;
 }
 
 /*
@@ -308,13 +308,14 @@ input::placeholder {
 */
 
 .c-horizon {
+  margin-top: 306px;
   margin-bottom: 32px;
 }
 
 .c-horizon__line {
   max-width: 400px;
   height: 1px;
-  border: 1px solid var(--global-color-front);
+  border: 1px solid var(--color-front, var(--global-color-front));
   display: flex;
   justify-content: space-between;
 }
@@ -372,6 +373,11 @@ input::placeholder {
 */
 
 /* Night version: just switch the light and dark vars */
+
+.is-night {
+  --color-front: var(--global-backgroundColor);
+  --color-back: var(--global-color-front);
+}
 
 /*------------------------------------*\
 #MEDIA
