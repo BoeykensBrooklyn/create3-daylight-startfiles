@@ -14,17 +14,19 @@ function _parseMillisecondsIntoReadableTime(timestamp) {
 }
 
 // 5 TODO: maak updateSun functie
-const updateSun = function(procent, DOMElement, timeObject){
+const updateSun = function(sunLeft, sunBottom, DOMElement, timeObject){
   DOMElement.setAttribute("data-time", timeObject.toLocaleString('nl-BE', {
     hour: 'numeric',
     minute: 'numeric',
   }) );
 
-  let bottomPercentage = 100 - procent;
+  DOMElement.style.bottom = `${sunBottom}%`;
+  DOMElement.style.left = `${sunLeft}%`;
 
-  DOMElement.style.bottom = `${bottomPercentage}%`;
-  DOMElement.style.left = `${procent}%`;
+}
 
+const updateSunEveryMinute = function(){
+  let percentage = Math.round(zonOpMinuten/totalMinutes *100);
 }
 
 // 4 Zet de zon op de juiste plaats en zorg ervoor dat dit iedere minuut gebeurt.
@@ -35,16 +37,49 @@ let placeSunAndStartMoving = (totalMinutes, sunrise) => {
   let aantalResterendeMinutenDOMElement = document.querySelector('.js-time-left')
   // Bepaal het aantal minuten dat de zon al op is.
   let timeAtTheMoment = new Date();
-  let zonOpMinuten = totalMinutes - timeAtTheMoment.getMinutes();
+  let sunriseTime = new Date(sunrise * 1000)
+  let zonOpMinuten = (timeAtTheMoment.getHours()*60 + timeAtTheMoment.getMinutes()) - (sunriseTime.getHours()*60 + sunriseTime.getMinutes());
+  if (zonOpMinuten > 0) {
+    document.querySelector('html').classList.remove("is-night");
+    document.querySelector('html').classList.add("is-day")
+  }
   // Nu zetten we de zon op de initiële goede positie ( met de functie updateSun ). Bereken hiervoor hoeveel procent er van de totale zon-tijd al voorbij is.
-  let percentage = Math.round(zonOpMinuten/totalMinutes *100);
-  updateSun(percentage, sunDOMElement, timeAtTheMoment)
+  let percentage = (100 / totalMinutes) * zonOpMinuten,
+  sunLeft = percentage;
+  sunBottom = percentage< 50? percentage * 2 : (100-percentage) * 2;
+
+  updateSun(sunLeft, sunBottom, sunDOMElement, timeAtTheMoment)
   // We voegen ook de 'is-loaded' class toe aan de body-tag.
+  const htmlDOM = document.querySelector("html")
+  htmlDOM.classList.add("is-loaded")
   // Vergeet niet om het resterende aantal minuten in te vullen.
+  aantalResterendeMinutenDOMElement.innerText = `${Math.round((totalMinutes - zonOpMinuten) /60)}`
   // Nu maken we een functie die de zon elke minuut zal updaten
-  // Bekijk of de zon niet nog onder of reeds onder is
-  // Anders kunnen we huidige waarden evalueren en de zon updaten via de updateSun functie.
+  const t = setInterval(() => {
+    today = new Date;
+      // Bekijk of de zon niet nog onder of reeds onder is
+    if (zonOpMinuten < 0 || zonOpMinuten > totalMinutes) {
+      document.querySelector('html').classList.add("is-night");
+      document.querySelector('html').classList.remove("is-day")
+    }else{
+      //Percentage Left
+      //Percentage Right
+      //percentage zon weer wat verder zetten
+      //minuten updaten
+      let percentage = (100 /totalMinutes) * zonOpMinuten,
+      sunLeft = percentage;
+      sunBottom = percentage< 50? percentage * 2 : (100-percentage) * 2;
+
+      updateSun(sunLeft, sunBottom, sunDOMElement, today);
+      aantalResterendeMinutenDOMElement.innerText = Math.round((totalMinutes - zonOpMinuten) /60)
+    }
+
+    zonOpMinuten++;
+    // Anders kunnen we huidige waarden evalueren en de zon updaten via de updateSun functie.
   // PS.: vergeet weer niet om het resterend aantal minuten te updaten en verhoog het aantal verstreken minuten.
+  }, 60000);
+
+  
 };
 
 // 3 Met de data van de API kunnen we de app opvullen
@@ -54,15 +89,15 @@ let showResult = (queryResponse) => {
   // Zorg dat de juiste locatie weergegeven wordt, volgens wat je uit de API terug krijgt.
   // Toon ook de juiste tijd voor de opkomst van de zon en de zonsondergang.
   let location = document.querySelector('.js-location');
-  location.innerHTML = queryResponse.name + ', ' + queryResponse.sys.country;
+  location.innerHTML = queryResponse.city.name + ', ' + queryResponse.city.country;
   let sunRiseTime = document.querySelector('.js-sunrise');
-  let sunRiseTimeDate = new Date(queryResponse.sys.sunrise * 1000);
+  let sunRiseTimeDate = new Date(queryResponse.city.sunrise * 1000);
   sunRiseTime.innerHTML = sunRiseTimeDate.toLocaleString('nl-BE', {
     hour: 'numeric',
     minute: 'numeric',
   });
   let sunsetTime = document.querySelector('.js-sunset');
-  let sunsetTimeDate = new Date(queryResponse.sys.sunset * 1000);
+  let sunsetTimeDate = new Date(queryResponse.city.sunset * 1000);
   sunsetTime.innerHTML = sunsetTimeDate.toLocaleString('nl-BE', {
     hour: 'numeric',
     minute: 'numeric',
@@ -70,29 +105,19 @@ let showResult = (queryResponse) => {
 
   // Hier gaan we een functie oproepen die de zon een bepaalde positie kan geven en dit kan updaten.
   // Geef deze functie de periode tussen sunrise en sunset mee en het tijdstip van sunrise.
-  console.log(sunRiseTimeDate)
-  let totalMinutes = (sunsetTimeDate.getTime() - sunRiseTimeDate.getTime()) / 1000 / 60;
-  console.log(totalMinutes);
-  placeSunAndStartMoving(totalMinutes, sunRiseTimeDate);
+  let timeDifference = new Date(queryResponse.city.sunset *1000 - queryResponse.city.sunrise * 1000)
+  placeSunAndStartMoving(timeDifference.getHours() * 60 + timeDifference.getMinutes(), queryResponse.city.sunrise);
 };
 
+const get = (url) => fetch(url).then((r) => r.json())
 // 2 Aan de hand van een longitude en latitude gaan we de yahoo wheater API ophalen.
-let getAPI = (lat, lon) => {
+let getAPI = async (lat, lon) => {
   // Eerst bouwen we onze url op
-  let url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=608fd61813fc09c7e5aff2f7d055db85`;
+  const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=608fd61813fc09c7e5aff2f7d055db85&units=metric&lang=nl&cnt=1`
   // Met de fetch API proberen we de data op te halen.
   // Als dat gelukt is, gaan we naar onze showResult functie.
-  fetch(url)
-    .then(function (response) {
-      if (!response.ok) {
-        throw Error(`looks like there was a problem. Status Code: ${response.status}`);
-      } else {
-        return response.json();
-      }
-    })
-    .then(function (jsonObject) {
-      showResult(jsonObject);
-    });
+  const weatherResponse = await get(url)
+  showResult(weatherResponse)
 };
 
 document.addEventListener('DOMContentLoaded', function () {
