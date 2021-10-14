@@ -19,14 +19,11 @@ const updateSun = function(sunLeft, sunBottom, DOMElement, timeObject){
     hour: 'numeric',
     minute: 'numeric',
   }) );
+  console.log(timeObject)
 
   DOMElement.style.bottom = `${sunBottom}%`;
   DOMElement.style.left = `${sunLeft}%`;
 
-}
-
-const updateSunEveryMinute = function(){
-  let percentage = Math.round(zonOpMinuten/totalMinutes *100);
 }
 
 // 4 Zet de zon op de juiste plaats en zorg ervoor dat dit iedere minuut gebeurt.
@@ -39,10 +36,15 @@ let placeSunAndStartMoving = (totalMinutes, sunrise) => {
   let timeAtTheMoment = new Date();
   let sunriseTime = new Date(sunrise * 1000)
   let zonOpMinuten = (timeAtTheMoment.getHours()*60 + timeAtTheMoment.getMinutes()) - (sunriseTime.getHours()*60 + sunriseTime.getMinutes());
-  if (zonOpMinuten > 0) {
-    document.querySelector('html').classList.remove("is-night");
-    document.querySelector('html').classList.add("is-day")
+  if (zonOpMinuten < 0) {
+    //it is night
+    document.querySelector('html').classList.add("is-night");
+    document.querySelector('html').classList.remove("is-day")
   }
+  else if (zonOpMinuten > totalMinutes) {
+    document.querySelector('html').classList.add("is-night");
+    document.querySelector('html').classList.remove("is-day");
+  } 
   // Nu zetten we de zon op de initiële goede positie ( met de functie updateSun ). Bereken hiervoor hoeveel procent er van de totale zon-tijd al voorbij is.
   let percentage = (100 / totalMinutes) * zonOpMinuten,
   sunLeft = percentage;
@@ -54,18 +56,27 @@ let placeSunAndStartMoving = (totalMinutes, sunrise) => {
   htmlDOM.classList.add("is-loaded")
   // Vergeet niet om het resterende aantal minuten in te vullen.
   aantalResterendeMinutenDOMElement.innerText = `${Math.round((totalMinutes - zonOpMinuten) /60)}`
+ 
   // Nu maken we een functie die de zon elke minuut zal updaten
   const t = setInterval(() => {
     today = new Date;
       // Bekijk of de zon niet nog onder of reeds onder is
-    if (zonOpMinuten < 0 || zonOpMinuten > totalMinutes) {
+    if (zonOpMinuten < 0) {
+      //it is night
       document.querySelector('html').classList.add("is-night");
       document.querySelector('html').classList.remove("is-day")
-    }else{
+    }
+    else if (zonOpMinuten > totalMinutes) {
+      document.querySelector('html').classList.add("is-night");
+      document.querySelector('html').classList.remove("is-day");
+    }
+    else{
       //Percentage Left
       //Percentage Right
       //percentage zon weer wat verder zetten
       //minuten updaten
+      document.querySelector('html').classList.remove("is-night");
+      document.querySelector('html').classList.add("is-day");
       let percentage = (100 /totalMinutes) * zonOpMinuten,
       sunLeft = percentage;
       sunBottom = percentage< 50? percentage * 2 : (100-percentage) * 2;
